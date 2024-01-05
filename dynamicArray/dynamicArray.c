@@ -14,6 +14,10 @@ enum STATUS_CODE
 
 #define BUFFER_SIZE 10
 
+/* 静态函数前置声明 */
+/* 动态数组的扩容 */
+static int expandDynamicCapacity(dynamicArray *pArray);
+
 /* 动态数组的初始化 */
 int dynamicArrayInit(dynamicArray *pArray, int capacity)
 {
@@ -76,6 +80,45 @@ int dynamicArrayInit(dynamicArray *pArray, int capacity)
 int dynamicArrayInsertData(dynamicArray *pArray, ELEMENTTYPE val)
 {
     return dynamicArrayAppointPosInsertData(pArray, pArray->len, val);
+}
+
+
+/* 动态数组的扩容 */
+/* 扩容就是为了扩大动态数组的容量 将动态数组的容量扩大 然后将原有的数据放进去 进行容量的更新*/
+static int expandDynamicCapacity(dynamicArray *pArray)
+{
+    int ret = 0;
+
+    /* 定义一个新的容量 */
+    int newCapacity = pArray->capacity + (pArray->capacity >> 1);
+
+    /* 将数据备份到一个指针 */
+    ELEMENTTYPE *tempPtr = pArray->data;
+    /* 将动态数组里的data清空 扩内存 */
+    pArray->data = (ELEMENTTYPE *)malloc(sizeof(ELEMENTTYPE) * newCapacity);
+    if (pArray->data == NULL)
+    {
+        return MALLOC_ERROE;
+    }
+
+    /* 将拷贝的东西重新放到动态数组里 */
+    for (int idx = 0; idx < pArray->capacity; idx++)
+    {
+        pArray->data[idx] = tempPtr[idx]; 
+    }
+    /* 将之前的指针释放 */
+    if (tempPtr == NULL)
+    {
+        free(tempPtr);
+        tempPtr = NULL;
+    }
+
+    /* 数组的容量更新 */
+    pArray->capacity = newCapacity;
+
+    return ret;
+    
+
 }
 
 /* 动态数组的指定位置的插入 */
