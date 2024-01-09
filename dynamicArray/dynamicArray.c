@@ -90,12 +90,13 @@ static int expandDynamicCapacity(dynamicArray *pArray)
     int ret = 0;
 
     /* 定义一个新的容量 */
-    int newCapacity = pArray->capacity + (pArray->capacity >> 1);
+    int newexpandCapacity = pArray->capacity + (pArray->capacity >> 1);
 
     /* 将数据备份到一个指针 */
     ELEMENTTYPE *tempPtr = pArray->data;
+
     /* 将动态数组里的data清空 扩内存 */
-    pArray->data = (ELEMENTTYPE *)malloc(sizeof(ELEMENTTYPE) * newCapacity);
+    pArray->data = (ELEMENTTYPE *)malloc(sizeof(ELEMENTTYPE) * newexpandCapacity);
     if (pArray->data == NULL)
     {
         return MALLOC_ERROE;
@@ -114,10 +115,46 @@ static int expandDynamicCapacity(dynamicArray *pArray)
     }
 
     /* 数组的容量更新 */
-    pArray->capacity = newCapacity;
+    pArray->capacity = newexpandCapacity;
 
-    return ret;
-    
+    return ON_SUCCESS;
+}
+
+/* 动态数组的缩容 */
+static int shrinkDynamicCapacity(dynamicArray *pArray)
+{
+    int ret = 0;
+
+    /* 定义一个新的容量 */
+    int needshrinkCapacity = pArray->capacity - (pArray->capacity << 1);
+
+    /* 定义一个指针将原来的数据放进去 */
+    ELEMENTTYPE *temptr = pArray->data;
+
+    /* 将原来放数据的空间清空 */
+    pArray->data = (ELEMENTTYPE *)malloc(sizeof(ELEMENTTYPE) * needshrinkCapacity);
+    if (pArray->data == NULL)
+    {
+        return MALLOC_ERROE;
+    }
+
+    /* 将拷贝的数据放在新的容量中 */
+    for (int idx = 0; idx < pArray->capacity; idx++)
+    {
+        pArray->data[idx] = temptr[idx];
+    }
+
+    /* 释放之前的临时指针 */
+    if (temptr != NULL)
+    {
+        free(temptr);
+        temptr = NULL;
+    }
+
+    /* 动态数组的容量更新 */
+    pArray->capacity = needshrinkCapacity;
+
+    return ON_SUCCESS;
 
 }
 
